@@ -4,8 +4,9 @@ TARGET_BOARD_TYPE := auto
 TARGET_BOARD_SUFFIX := _au
 TARGET_BOARD_DERIVATIVE_SUFFIX := _s_u
 
-SHIPPING_API_LEVEL := 34
+SHIPPING_API_LEVEL := 32
 PRODUCT_SHIPPING_API_LEVEL := $(SHIPPING_API_LEVEL)
+TARGET_USES_CAS1.2 := false
 
 ifeq ($(TARGET_SINGLE_TREE), true)
   PRODUCT_PRODUCT_VNDK_VERSION := current
@@ -701,7 +702,7 @@ PRODUCT_PROPERTY_OVERRIDES += ro.radio.noril=true
 PRODUCT_PROPERTY_OVERRIDES += ro.boot.wificountrycode=us
 
 # Native service to load modules
-ifneq (,$(filter $(TARGET_BOARD_PLATFORM)$(TARGET_BOARD_SUFFIX), msmnile_au_s_u))
+ifneq (,$(filter $(TARGET_BOARD_PLATFORM)$(TARGET_BOARD_SUFFIX)$(TARGET_BOARD_DERIVATIVE_SUFFIX), msmnile_au_s_u))
 PRODUCT_VENDOR_PROPERTIES += ro.vendor.qti.load_dlkm.service=native
 endif
 

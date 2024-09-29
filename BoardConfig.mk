@@ -47,7 +47,6 @@ ifeq ($(TARGET_SINGLE_TREE), true)
 else
   BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := vendor vendor_dlkm system_dlkm
 endif
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 67108864
 BOARD_EXT4_SHARE_DUP_BLOCKS := true
 
 ifeq ($(BOARD_KERNEL_SEPARATED_DTBO),true)
@@ -119,16 +118,15 @@ BOARD_USES_RECOVERY_AS_BOOT := false
 TARGET_NO_RECOVERY := true
 endif
 
-BOARD_BOOT_HEADER_VERSION := 4
+BOARD_BOOT_HEADER_VERSION := 3
 BOARD_MKBOOTIMG_ARGS := --header_version $(BOARD_BOOT_HEADER_VERSION)
 
 ifeq ($(TARGET_NO_RECOVERY), true)
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
-BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
 endif
 # Specify init boot header version
-BOARD_INIT_BOOT_HEADER_VERSION := 4
-BOARD_MKBOOTIMG_INIT_ARGS += --header_version $(BOARD_INIT_BOOT_HEADER_VERSION)
+#BOARD_INIT_BOOT_HEADER_VERSION := 4
+#BOARD_MKBOOTIMG_INIT_ARGS += --header_version $(BOARD_INIT_BOOT_HEADER_VERSION)
 # Defines for enabling A/B builds
 AB_OTA_UPDATER := true
 # Full A/B partition update set
@@ -141,7 +139,7 @@ AB_OTA_UPDATER := true
 ifeq ($(TARGET_SINGLE_TREE), true)
   AB_OTA_PARTITIONS ?= init_boot vendor vendor_dlkm system_dlkm vbmeta vendor_boot boot dtbo vbmeta_system system system_ext product
 else
-  AB_OTA_PARTITIONS ?= init_boot vendor vendor_dlkm system_dlkm vbmeta vendor_boot boot dtbo vbmeta_system
+  AB_OTA_PARTITIONS ?= vendor vbmeta vendor_boot boot dtbo vbmeta_system vendor_dlkm system_dlkm
 endif
 #TARGET_NO_RECOVERY := true
 #BOARD_USES_RECOVERY_AS_BOOT := true
@@ -169,12 +167,12 @@ TARGET_COPY_OUT_VENDOR := vendor
 BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
 endif
 TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_USERIMAGES_USE_F2FS := true
+#TARGET_USERIMAGES_USE_F2FS := false
 
 BOARD_BOOTIMAGE_PARTITION_SIZE := 0x06000000
 BOARD_KERNEL-GKI_BOOTIMAGE_PARTITION_SIZE := $(BOARD_BOOTIMAGE_PARTITION_SIZE)
 BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 0x06000000
-BOARD_INIT_BOOT_IMAGE_PARTITION_SIZE := 0x00800000
+#BOARD_INIT_BOOT_IMAGE_PARTITION_SIZE := 0x00800000
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 10737418240
 BOARD_PERSISTIMAGE_PARTITION_SIZE := 33554432
 BOARD_PERSISTIMAGE_FILE_SYSTEM_TYPE := ext4
@@ -188,7 +186,7 @@ endif
 BOARD_PREBUILT_DTBOIMAGE := out/target/product/msmnile_au_s_u/prebuilt_dtbo.img
 BOARD_DTBOIMG_PARTITION_SIZE := 0x0800000
 BOARD_FLASH_BLOCK_SIZE := 131072 # (BOARD_KERNEL_PAGESIZE * 64)
-BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
+BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := ext4
 
 BOARD_GENERIC_RAMDISK_KERNEL_MODULES_LOAD := \
     snd_event_dlkm.ko \
@@ -216,9 +214,9 @@ TARGET_USES_ION := true
 TARGET_USES_NEW_ION_API :=true
 TARGET_USES_QCOM_BSP := false
 
-BOARD_BOOTCONFIG := androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 androidboot.recover_usb=1 androidboot.selinux=enforcing androidboot.load_modules_parallel=true
+#BOARD_BOOTCONFIG := androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 androidboot.recover_usb=1 androidboot.selinux=enforcing androidboot.load_modules_parallel=true
 
-BOARD_KERNEL_CMDLINE := lpm_levels.sleep_disabled=1 video=vfb:640x400,bpp=32,memsize=3072000 msm_rtb.filter=0x237 service_locator.enable=1 swiotlb=4096 loop.max_part=7 kvm-arm.mode=nvhe hibernate=nocompress noswap_randomize pcie_ports=compat log_buf_len=2M
+BOARD_KERNEL_CMDLINE := debug loglevel=8 lpm_levels.sleep_disabled=1 video=vfb:640x400,bpp=32,memsize=3072000 msm_rtb.filter=0x237 service_locator.enable=1 swiotlb=4096 loop.max_part=7 kvm-arm.mode=nvhe hibernate=nocompress noswap_randomize pcie_ports=compat log_buf_len=2M androidboot.hardware=qcom androidboot.memcg=1 androidboot.usbcontroller=a600000.dwc3 androidboot.recover_usb=1 androidboot.selinux=enforcing androidboot.load_modules_parallel=true
 
 ifeq ($(BOARD_SUPPORTS_RAMDISK_EARLY_INIT),true)
 BOARD_KERNEL_CMDLINE += firmware_class.path=/vendor_early_services/vendor/firmware_mnt/image,/vendor_early_services/firmware
@@ -228,7 +226,7 @@ endif
 
 ifeq ($(TARGET_CONSOLE_ENABLED),true)
 BOARD_KERNEL_CMDLINE += console=ttyMSM0,115200n8 earlycon=qcom_geni,0xa90000 qcom_geni_serial.con_enabled=1
-BOARD_BOOTCONFIG += androidboot.console=ttyMSM0
+BOARD_KERNEL_CMDLINE += androidboot.console=ttyMSM0
 BOARD_KERNEL_CMDLINE += slub_debug=FZPU
 else
 ifeq ($(TARGET_CONSOLE_ENABLED),false)
