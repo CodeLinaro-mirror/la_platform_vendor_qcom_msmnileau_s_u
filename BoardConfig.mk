@@ -5,6 +5,15 @@
 
 # Disable DLKMs compilation for msmnile_au
 TARGET_KERNEL_DLKM_DISABLE := false
+
+#We are resetting BOARD_VENDOR_KERNEL_MODULES due to BoardConfig.mk invoked twice
+# 1. From vendor/qcom/proprietary/common/config/device-vendor.mk
+# 2. From build/make/core/board_config.mk
+#which impacts duplicates found in vendor_dlkm partition while building image
+ifneq ( ,$(filter Baklava 16,$(PLATFORM_VERSION)))
+BOARD_VENDOR_KERNEL_MODULES :=
+endif
+
 #Enable legacy path for ELITE
 ENABLE_AUDIO_LEGACY_TECHPACK := true
 
@@ -112,15 +121,17 @@ BOARD_USES_RECOVERY_AS_BOOT := false
 TARGET_NO_RECOVERY := true
 endif
 
+# Specify boot header version
 BOARD_BOOT_HEADER_VERSION := 3
 BOARD_MKBOOTIMG_ARGS := --header_version $(BOARD_BOOT_HEADER_VERSION)
 
 ifeq ($(TARGET_NO_RECOVERY), true)
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
+ifneq ( ,$(filter Baklava 16,$(PLATFORM_VERSION)))
+BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := false
 endif
-# Specify init boot header version
-#BOARD_INIT_BOOT_HEADER_VERSION := 4
-#BOARD_MKBOOTIMG_INIT_ARGS += --header_version $(BOARD_INIT_BOOT_HEADER_VERSION)
+endif
+
 # Defines for enabling A/B builds
 AB_OTA_UPDATER := true
 # Full A/B partition update set
@@ -131,7 +142,7 @@ AB_OTA_UPDATER := true
 # in the full set mentioned above as part of your make commandline
 #AB_OTA_PARTITIONS ?= system vendor system_ext vendor_dlkm system_dlkm
 ifeq ($(TARGET_SINGLE_TREE), true)
-  AB_OTA_PARTITIONS ?= init_boot vendor vendor_dlkm system_dlkm vbmeta vendor_boot boot dtbo vbmeta_system system system_ext product
+  AB_OTA_PARTITIONS ?= vendor vendor_dlkm system_dlkm vbmeta vendor_boot boot dtbo vbmeta_system system system_ext product
 else
   AB_OTA_PARTITIONS ?= vendor vbmeta vendor_boot boot dtbo vbmeta_system vendor_dlkm system_dlkm
 endif
@@ -203,7 +214,10 @@ endif
 
 BOARD_DO_NOT_STRIP_VENDOR_MODULES := false
 
+ifeq ( ,$(filter Baklava 16,$(PLATFORM_VERSION)))
 BOARD_VENDOR_KERNEL_MODULES += $(shell ls $(KERNEL_MODULES_OUT)/*.ko)
+endif
+
 TARGET_USES_ION := true
 TARGET_USES_NEW_ION_API :=true
 TARGET_USES_QCOM_BSP := false
@@ -226,6 +240,10 @@ else
 ifeq ($(TARGET_CONSOLE_ENABLED),false)
 BOARD_KERNEL_CMDLINE += qcom_geni_serial.con_enabled=0
 endif
+endif
+
+ifneq ( ,$(filter Baklava 16,$(PLATFORM_VERSION)))
+BOARD_BOOTCONFIG :=
 endif
 
 BOARD_EGL_CFG := device/qcom/$(TARGET_BOARD_PLATFORM)/egl.cfg
@@ -326,7 +344,9 @@ endif
 
 #Flag to enable System SDK Requirements.
 #All vendor APK will be compiled against system_current API set.
+ifeq ( ,$(filter Baklava 16,$(PLATFORM_VERSION)))
 BOARD_SYSTEMSDK_VERSIONS:= $(SHIPPING_API_LEVEL)
+endif
 
 #Enable VNDK Compliance
 BOARD_VNDK_VERSION:=current
@@ -338,7 +358,9 @@ BUILD_BROKEN_USES_BUILD_HOST_EXECUTABLE := true
 BUILD_BROKEN_USES_BUILD_COPY_HEADERS := true
 BUILD_BROKEN_USES_BUILD_HOST_STATIC_LIBRARY := true
 BUILD_BROKEN_CLANG_PROPERTY := true
+ifeq ( ,$(filter Baklava 16,$(PLATFORM_VERSION)))
 BUILD_BROKEN_USES_SOONG_PYTHON2_MODULES := true
+endif
 
 #Flag for Early Ethernet
 IS_EARLY_ETH_ENABLED := 1
@@ -354,3 +376,11 @@ IS_EARLY_ETH_ENABLED := 1
 include device/qcom/sepolicy_vndr/SEPolicy.mk
 #Enable Camera2 APIs on automotive builds
 ENABLE_CAMERA_SERVICE := true
+
+#We are sorting BOARD_VENDOR_KERNEL_MODULES due to BoardConfig.mk invoked twice
+# 1. From vendor/qcom/proprietary/common/config/device-vendor.mk
+# 2. From build/make/core/board_config.mk
+#which impacts duplicates found in vendor_dlkm partition while building image
+ifneq ( ,$(filter Baklava 16,$(PLATFORM_VERSION)))
+BOARD_VENDOR_KERNEL_MODULES := $(sort $(BOARD_VENDOR_KERNEL_MODULES))
+endif
