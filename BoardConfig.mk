@@ -144,7 +144,7 @@ AB_OTA_UPDATER := true
 ifeq ($(TARGET_SINGLE_TREE), true)
   AB_OTA_PARTITIONS ?= vendor vendor_dlkm system_dlkm vbmeta vendor_boot boot dtbo vbmeta_system system system_ext product
 else
-  AB_OTA_PARTITIONS ?= vendor vbmeta vendor_boot boot dtbo vbmeta_system vendor_dlkm system_dlkm
+  AB_OTA_PARTITIONS ?= vendor vbmeta vendor_boot boot dtbo vendor_dlkm system_dlkm
 endif
 #TARGET_NO_RECOVERY := true
 #BOARD_USES_RECOVERY_AS_BOOT := true
